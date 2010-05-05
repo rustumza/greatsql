@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://xml.netbeans.org/schema/catalogo"
+    xmlns:tns="http://xml.netbeans.org/schema/catalogo"
+    elementFormDefault="qualified">
+    <xsd:complexType name="columnaType">
+        <xsd:attribute name="nombre" type="xsd:string"/>
+        <xsd:attribute name="tipo" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="tablaType">
+        <xsd:sequence>
+            <xsd:element  name="columna" type="tns:columnaType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="baseDatosType">
+        <xsd:sequence>
+            <xsd:element name="tabla" type="tns:tablaType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="baseDatos" type="tns:baseDatosType"/>
+</xsd:schema>
+
+
