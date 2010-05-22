@@ -2,109 +2,94 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package greatsql;
-import Zql.ZFromItem;
-import Zql.ZQuery;
-import Zql.ZSelectItem;
-import Zql.ZStatement;
-import Zql.ZqlParser;
-import greatsql.expertos.CodigosError;
-import greatsql.expertos.GreatSQLException;
+
+import greatsql.visitantes.SelectStatementVisitor;
 import greatsql.sentencias.ColumnaSentencia;
 import greatsql.sentencias.TablaSentencia;
+
 import greatsql.sentencias.select.SentenciaSelect;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Select;
+
 /**
  *
  * @author Ismael
  */
 public class Main {
-public static void main(String[] args) {
 
+    public static void main(String[] args) {
 
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
         try {
-            System.out.println("Leyendo SQL desde la entrada estandar:");
-            ZqlParser parser = new ZqlParser(System.in);
-
-            ZStatement statement;
-
-            while ((statement = parser.readStatement()) != null) {
-                if (statement instanceof ZQuery) {
-                    executeQuery((ZQuery) statement);
+            System.out.println("Ingrese sentencia: ");
+            String sql = br.readLine();
+            CCJSqlParserManager pm = new CCJSqlParserManager();
+            Statement statement;
+            try {
+                statement = pm.parse(new StringReader(sql));
+                if (statement instanceof Select) {
+                    execSelect(statement);
+                } else {
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
+            } catch (JSQLParserException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Sintaxis invalida", ex);
             }
 
-        } catch (Exception e) {
-            GreatSQLException g = new GreatSQLException(CodigosError.SINTAXIS_INVALIDA);
-            System.out.println(g.getSentencia() + "\n");
-            System.out.println(g.getMessage());
-            System.out.println(e.getMessage());
-
-            //////////////////////////////////////////////////////////////
-            // Falta tratar bien las Excepciones                        //
-            //                                                          //
-            //                                                          //
-            //////////////////////////////////////////////////////////////
-
+        } catch (IOException ex) {
+            System.out.println("Error al leer buffered reader\n" + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
-    private static void executeQuery(ZQuery query) throws Exception {
+    private static void execSelect(Statement statement) {
+        SentenciaSelect sentenciaSelect = translateSelect((Select) statement);
+        // Buscar datos en el archivo...
+    }
 
+    private static SentenciaSelect translateSelect(Select statement) {
 
-        Vector select = query.getSelect();
-        Vector from = query.getFrom();
-        ZFromItem table = (ZFromItem) from.elementAt(0);
+        //Obtenemos los datos---------------------------------------------------
+        Select selectStatement = (Select) statement;
+        SelectStatementVisitor selectStatementVisitor = new SelectStatementVisitor();
+        selectStatement.getSelectBody().accept(selectStatementVisitor);
+        String tableName = selectStatementVisitor.getTableName();
+        ArrayList columnsList = selectStatementVisitor.getColumnsName();
 
-
-////////////////Convertimos los objetos ZQL a Objetos GSQL//////////////////////
-//
-//
-//
-//
+        // Traduccion a Objetos GreatSql----------------------------------------
         SentenciaSelect sentenciaSelect = new SentenciaSelect();
-        ColumnaSentencia columnaSentencia = new ColumnaSentencia();
-        ArrayList<ColumnaSentencia> arregloColumnas = new ArrayList();
-        TablaSentencia tablaSentencia = new TablaSentencia();
+
+                    // Tablas de la sentencia
+             TablaSentencia tablaSentencia = new TablaSentencia();
+             tablaSentencia.setIdentificador(tableName);
+             sentenciaSelect.setTabla(tablaSentencia);
+
+                    // Columnas de la sentencia
+             Iterator itColumn = columnsList.listIterator();
+             ArrayList<ColumnaSentencia> columnas = new ArrayList<ColumnaSentencia>();
+             while (itColumn.hasNext()) {
+                   ColumnaSentencia columnaSentencia = new ColumnaSentencia();
+                   columnaSentencia.setIdentificador((String) itColumn.next());
+                   columnas.add(columnaSentencia);
+                    }
+             sentenciaSelect.setColumnas(columnas);
+         //---------------------------------------------------------------------
 
 
-        ZSelectItem selectItem = (ZSelectItem) select.elementAt(0);
-
-        columnaSentencia.setIdentificador(selectItem.getColumn());
-        columnaSentencia.setAlias(selectItem.getAlias());
-        arregloColumnas.add(columnaSentencia);
-
-
-
-        tablaSentencia.setIdentificador(table.getTable());
-        tablaSentencia.setAlias(table.getAlias());
-
-
-        sentenciaSelect.setColumnas(arregloColumnas);
-        sentenciaSelect.setTabla(tablaSentencia);
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-        ArrayList<ColumnaSentencia> columnasGSQL = sentenciaSelect.getColumnas();
-        Iterator iterador = columnasGSQL.listIterator();
-
-
-        System.out.println("\nSentencia Valida: \n");
-        int contador = 1;
-        while (iterador.hasNext()) {
-            ColumnaSentencia columna = (ColumnaSentencia) iterador.next();
-            System.out.println(contador + "er " + "Columna: " + columna.getIdentificador() + "\t Alias: " + columna.getAlias());
-            contador++;
-        }
-
-        TablaSentencia tablaGSQL = sentenciaSelect.getTabla();
-        System.out.println("\nNombre de la Tabla: " + tablaGSQL.getIdentificador() + "\t Alias de la Tabla: " + tablaGSQL.getAlias());
-        System.exit(0);
+      return sentenciaSelect;
     }
-
 }
+
+
