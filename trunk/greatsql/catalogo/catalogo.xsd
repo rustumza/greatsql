@@ -10,7 +10,9 @@
     </xsd:complexType>
     <xsd:complexType name="tablaType">
         <xsd:sequence>
-            <xsd:element  name="columna" type="tns:columnaType"/>
+            <xsd:element name="nombre" type="tns:columnaType" maxOccurs="unbound" />
+            <xsd:element name="dni" type="tns:columnaType" maxOccurs="unbound" />
+            <xsd:element name="apellido" type="tns:columnaType" maxOccurs="unbound" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="baseDatosType">
