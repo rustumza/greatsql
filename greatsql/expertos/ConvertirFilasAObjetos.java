@@ -31,7 +31,7 @@ public class ConvertirFilasAObjetos {
         //Agrego los nombres y tipos de columnas del catalogo en el arraylist columnas
         ExpertoLeerCatalogo expertoLeerCatalogo= new ExpertoLeerCatalogo();
 
-        BaseDatosType baseDeDatos=expertoLeerCatalogo.leer();
+        BaseDatosType baseDeDatos=expertoLeerCatalogo.leer("/home/rustu/Escritorio","GreatSQL");
         ArrayList<ColumnaObjetos> columnas = new ArrayList<ColumnaObjetos>();
         ColumnaObjetos aux;
 
