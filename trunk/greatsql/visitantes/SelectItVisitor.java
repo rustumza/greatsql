@@ -18,24 +18,25 @@ public class SelectItVisitor implements SelectItemVisitor {
 
     public String allColumns;
     public ExpressionInVisitor expressionVisitor = new ExpressionInVisitor();
-    ArrayList<String> columns = new ArrayList<String>();
+    ArrayList<String> columnsName = new ArrayList<String>();
+    ArrayList<String> columnsAlias;
 
     public String getAllColumns() {
         return allColumns;
     }
 
     public ArrayList<String> getColumnAlias() {
-        columns = expressionVisitor.getColumnName();
-        return columns;
+        columnsAlias = expressionVisitor.getColumnAlias();
+        return columnsAlias;
     }
 
     public ArrayList<String> getColumnName() {
-        columns = expressionVisitor.getColumnName();
-        if (!columns.isEmpty()) {
-            return columns;
+        columnsName = expressionVisitor.getColumnName();
+        if (!columnsName.isEmpty()) {
+            return columnsName;
         } else {
-            columns.add(getAllColumns());
-            return columns;
+            columnsName.add(getAllColumns());
+            return columnsName;
         }
     }
 

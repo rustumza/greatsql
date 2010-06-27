@@ -29,6 +29,14 @@ public class SelectStatementVisitor implements SelectVisitor {
         return fromVisitor.getTableNameList();
     }
 
+    public ArrayList getSelectTableAlias() {
+        return selectItemVisitor.getColumnAlias();
+    }
+
+    public String getFromTableAlias() {
+        return fromVisitor.getTableAliasList();
+    }
+
     //--------------------------------------------------------------------------
     public void visit(PlainSelect arg0) {
         List selectItemsList = arg0.getSelectItems();
