@@ -52,6 +52,9 @@ public class ExpressionInVisitor implements ExpressionVisitor {
     public ArrayList getColumnName() {
         return columnVisitor.getColumnName();
     }
+    public ArrayList getColumnAlias() {
+        return columnVisitor.getColumnTableAlias();
+    }
 
     //--------------------------------------------------------------------------
     public void visit(Column arg0) {
